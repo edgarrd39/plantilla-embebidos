@@ -33,16 +33,23 @@ SPDX-License-Identifier: MIT
 
 /* === Macros definitions ====================================================================== */
 
+#ifndef OUTPUT_INSTANCES
+    #define OUTPUT_INSTANCES     4
+#endif
+
 /* === Private data type declarations ========================================================== */
 
 //! Estructura para almacenar el descriptor de una salida digital
 struct digital_output_s{
     uint8_t port;       //!< Puerto GPIO de la salida digital
     uint8_t pin;     //!< Terminal del puerto GPIO de la salida digital
+    bool allocated;  //!< Bandera para indicar que el descriptor esta en uso
 };
 /* === Private variable declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
+
+digital_output_t DigitalOuputAllocate(void);
 
 /* === Public variable definitions ============================================================= */
 
@@ -50,26 +57,44 @@ struct digital_output_s{
 
 /* === Private function implementation ========================================================= */
 
+digital_output_t DigitalOuputAllocate(void){
+    digital_output_t output = NULL;
+
+    static struct digital_output_s instances[OUTPUT_INSTANCES] = {0};
+
+    for(int index=0; index<OUTPUT_INSTANCES; index++){
+        if(!instances[index].allocated){
+            instances[index].allocated = true;
+            output = &instances[index];
+            break;
+        }
+    }
+    return output;
+}
+
 /* === Public function implementation ========================================================== */
 
 digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin){
-    static struct digital_output_s output;
 
-    output.port = port;
-    output.pin = pin;
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output.port, output.pin, false);
-    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, output.port, output.pin, true);
+    digital_output_t output = DigitalOuputAllocate();
 
-    return &output;
+    if(output){
+        output->port = port;
+        output->pin = pin;
+        Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
+        Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, output->port, output->pin, true);
+    }
+
+    return output;
         
 }
 
 void DigitalOutputActivate(digital_output_t output){
-
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, true);
 }
 
 void DigitalOutputDesactivate(digital_output_t output){
-    
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
 }
 
 void DigitalOutputToggle(digital_output_t output){
