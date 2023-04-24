@@ -31,6 +31,9 @@ SPDX-License-Identifier: MIT
 
 /* === Headers files inclusions ================================================================ */
 
+#include <stdbool.h>
+#include <stdint.h>
+
 /* === Cabecera C++ ============================================================================ */
 
 #ifdef __cplusplus
@@ -41,9 +44,46 @@ extern "C" {
 
 /* === Public data type declarations =========================================================== */
 
+//! Referencia a un descriptor para gestionar una salida digital
+typedef struct digital_output_s * digital_output_t;
+
 /* === Public variable declarations ============================================================ */
 
 /* === Public function declarations ============================================================ */
+
+/**
+ * @brief Método para crear una salida digital
+ * 
+ * @param port  Puerto GPIO que contiene a la salida
+ * @param pin   Número del terminal del puerto GPIO asignado a la salida
+ * @return digital_output_t     Puntero al descriptor de la salida creada
+ */
+
+digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin);
+
+
+/**
+ * @brief Método para prender una salida digital
+ * 
+ * @param output    Puntero al descriptor de salida
+ */
+
+void DigitalOutputActivate(digital_output_t output);
+
+/**
+ * @brief Método para apagar una salida digital
+ * 
+ * @param output    Puntero al descriptor de salida
+ */
+
+void DigitalOutputDesactivate(digital_output_t output);
+
+/**
+ * @brief Método para invertir el estado de una salida digital
+ * 
+ * @param output    Puntero al descriptor de salida
+ */
+void DigitalOutputToggle(digital_output_t output);
 
 /* === End of documentation ==================================================================== */
 

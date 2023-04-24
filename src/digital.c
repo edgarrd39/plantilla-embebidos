@@ -34,6 +34,10 @@ SPDX-License-Identifier: MIT
 
 /* === Private data type declarations ========================================================== */
 
+//! Estructura para almacenar el descriptor de una salida digital
+struct digital_output_s{
+
+};
 /* === Private variable declarations =========================================================== */
 
 /* === Private function declarations =========================================================== */
