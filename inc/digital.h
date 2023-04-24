@@ -67,7 +67,6 @@ digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin);
  * 
  * @param output    Puntero al descriptor de salida
  */
-
 void DigitalOutputActivate(digital_output_t output);
 
 /**
@@ -75,7 +74,6 @@ void DigitalOutputActivate(digital_output_t output);
  * 
  * @param output    Puntero al descriptor de salida
  */
-
 void DigitalOutputDesactivate(digital_output_t output);
 
 /**
