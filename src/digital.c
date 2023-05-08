@@ -47,12 +47,14 @@ SPDX-License-Identifier: MIT
 struct digital_output_s {
     uint8_t port;       //!< Puerto GPIO de la salida digital
     uint8_t pin;        //!< Terminal del puerto GPIO de la salida digital
+    bool inverted : 1;  //! Bandera que indica si la salida funciona con logica inversa
     bool allocated : 1; //!< Bandera para indicar que el descriptor esta en uso
 };
 
 struct digital_input_s {
     uint8_t port;        //!< Puerto GPIO de la entrada digital.
     uint8_t pin;         //!< Terminal del puerto GPIO de la entrada digital.
+    bool inverted : 1;   //! Bandera que indica si la entrada funciona con logica inversa
     bool last_state : 1; //!< Bandera con el último estado reportado de la entrada.
     bool allocated : 1;  //!< Bandera para indicar que el descriptor está en uso.
 };
@@ -102,13 +104,14 @@ digital_input_t DigitalInputAllocate(void) {
 
 /* === Public function implementation ========================================================== */
 
-digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin) {
+digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin, bool inverted) {
 
     digital_output_t output = DigitalOuputAllocate();
 
     if (output) {
         output->port = port;
         output->pin = pin;
+        output->inverted = inverted;
         Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
         Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, output->port, output->pin, true);
     }
@@ -117,11 +120,11 @@ digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin) {
 }
 
 void DigitalOutputActivate(digital_output_t output) {
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, true);
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, output->inverted ^ true);
 }
 
 void DigitalOutputDesactivate(digital_output_t output) {
-    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, output->inverted ^ false);
 }
 
 void DigitalOutputToggle(digital_output_t output) {
@@ -130,20 +133,21 @@ void DigitalOutputToggle(digital_output_t output) {
 
 // Entradas ↓
 
-digital_input_t DigitalInputCreate(uint8_t port, uint8_t pin) {
+digital_input_t DigitalInputCreate(uint8_t port, uint8_t pin, bool inverted) {
 
     digital_input_t input = DigitalInputAllocate();
 
     if (input) {
         input->port = port;
         input->pin = pin;
+        input->inverted = inverted;
         Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, input->port, input->pin, false);
     }
     return input;
 }
 
 bool DigitalInputGetState(digital_input_t input) {
-    return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, input->port, input->pin);
+    return input->inverted ^ Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, input->port, input->pin);
 }
 
 bool DigitalInputHasChanged(digital_input_t input) {
