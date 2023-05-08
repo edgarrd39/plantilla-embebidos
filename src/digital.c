@@ -19,7 +19,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 SPDX-License-Identifier: MIT
 *************************************************************************************************/
 
-/** \brief Digital inputs/outputs 
+/** \brief Digital inputs/outputs
  **
  **
  ** \addtogroup hal HAL
@@ -34,16 +34,25 @@ SPDX-License-Identifier: MIT
 /* === Macros definitions ====================================================================== */
 
 #ifndef OUTPUT_INSTANCES
-    #define OUTPUT_INSTANCES     4
+#define OUTPUT_INSTANCES 4
+#endif
+
+#ifndef INPUT_INSTANCES
+#define INPUT_INSTANCES 4
 #endif
 
 /* === Private data type declarations ========================================================== */
 
 //! Estructura para almacenar el descriptor de una salida digital
-struct digital_output_s{
-    uint8_t port;       //!< Puerto GPIO de la salida digital
-    uint8_t pin;     //!< Terminal del puerto GPIO de la salida digital
-    bool allocated;  //!< Bandera para indicar que el descriptor esta en uso
+struct digital_output_s {
+    uint8_t port;   //!< Puerto GPIO de la salida digital
+    uint8_t pin;    //!< Terminal del puerto GPIO de la salida digital
+    bool allocated; //!< Bandera para indicar que el descriptor esta en uso
+};
+
+struct digital_input_s {
+    uint8_t port;
+    uint8_t pin;
 };
 /* === Private variable declarations =========================================================== */
 
@@ -57,13 +66,13 @@ digital_output_t DigitalOuputAllocate(void);
 
 /* === Private function implementation ========================================================= */
 
-digital_output_t DigitalOuputAllocate(void){
+digital_output_t DigitalOuputAllocate(void) {
     digital_output_t output = NULL;
 
     static struct digital_output_s instances[OUTPUT_INSTANCES] = {0};
 
-    for(int index=0; index<OUTPUT_INSTANCES; index++){
-        if(!instances[index].allocated){
+    for (int index = 0; index < OUTPUT_INSTANCES; index++) {
+        if (!instances[index].allocated) {
             instances[index].allocated = true;
             output = &instances[index];
             break;
@@ -74,11 +83,11 @@ digital_output_t DigitalOuputAllocate(void){
 
 /* === Public function implementation ========================================================== */
 
-digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin){
+digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin) {
 
     digital_output_t output = DigitalOuputAllocate();
 
-    if(output){
+    if (output) {
         output->port = port;
         output->pin = pin;
         Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
@@ -86,19 +95,35 @@ digital_output_t DigitalOutputCreate(uint8_t port, uint8_t pin){
     }
 
     return output;
-        
 }
 
-void DigitalOutputActivate(digital_output_t output){
+void DigitalOutputActivate(digital_output_t output) {
     Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, true);
 }
 
-void DigitalOutputDesactivate(digital_output_t output){
+void DigitalOutputDesactivate(digital_output_t output) {
     Chip_GPIO_SetPinState(LPC_GPIO_PORT, output->port, output->pin, false);
 }
 
-void DigitalOutputToggle(digital_output_t output){
+void DigitalOutputToggle(digital_output_t output) {
     Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, output->port, output->pin);
+}
+
+// Entradas ↓
+
+digital_input_t DigitalInputCreate(uint8_t port, uint8_t pin) {
+    static struct digital_input_s input;
+
+    input.port = port;
+    input.pin = pin;
+
+    Chip_GPIO_SetPinDIR(LPC_GPIO_PORT, input.port, input.pin, false);
+
+    return &input;
+}
+
+bool DigitalInputGetState(digital_input_t input) {
+    return Chip_GPIO_ReadPortBit(LPC_GPIO_PORT, input->port, input->pin);
 }
 /* === End of documentation ==================================================================== */
 
