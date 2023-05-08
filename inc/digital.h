@@ -47,6 +47,9 @@ extern "C" {
 //! Referencia a un descriptor para gestionar una salida digital
 typedef struct digital_output_s * digital_output_t;
 
+//! Referencia a un descriptor para gestionar una entrada digital
+typedef struct digital_input_s * digital_input_t;
+
 /* === Public variable declarations ============================================================ */
 
 /* === Public function declarations ============================================================ */
@@ -82,6 +85,54 @@ void DigitalOutputDesactivate(digital_output_t output);
  * @param output    Puntero al descriptor de salida
  */
 void DigitalOutputToggle(digital_output_t output);
+
+// Entradas ↓ 
+
+/**
+ * @brief Método para crear una entrada digital
+ * 
+ * @param port      Puerto GPIO que contiene a la entrada
+ * @param pin       Número del terminal del puerto GPIO asignado a la entrada
+ * @param inverted  Bandera que indica que la entrada trabaja con lógica invertida
+ * @return digital_input_t  Puntero al descriptor a la salida creada
+ */
+digital_input_t DigitalInputCreate(uint8_t port, uint8_t pin, uint8_t inverted); 
+
+/**
+ * @brief Método para consultar el estado de una entrada digital
+ * 
+ * @param input     Puntero al descriptor de la entrada
+ * @return true     La entrada está activa
+ * @return false    La entrada está inactiva
+ */
+bool DigitalInputGetState(digital_input_t input);
+
+/**
+ * @brief Método para consultar cambios en el estado de una entrada digital
+ * 
+ * @param input     Puntero al descriptor de la entrada
+ * @return true     La entrada tuvo cambios desde la ultima llamada    
+ * @return false    La entrada no tuvo cambios desde la ultima llamada 
+ */
+bool DigitalInputHasChanged(digital_input_t input);
+
+/**
+ * @brief Método para consultar activaciones en una entrada digital
+ * 
+ * @param input     Puntero al descriptor de la entrada
+ * @return true     La entrada tuvo activaciones desde la última llamada
+ * @return false    La entrada no tuvo activaciones desde la ultima llamada
+ */
+bool DigitalInputHasActivated(digital_input_t input);
+
+/**
+ * @brief Método para consultar desactivaciones en una entrada digital
+ * 
+ * @param input     Puntero al descriptor de la entrada
+ * @return true     La entrada tuvo desactivaciones desde la última llamada
+ * @return false    La entrada no tuvo desactivaciones desde la ultima llamada
+ */
+bool DigitalInputHasDesactivated(digital_input_t input);
 
 /* === End of documentation ==================================================================== */
 
