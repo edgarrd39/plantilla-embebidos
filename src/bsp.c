@@ -37,6 +37,8 @@ SPDX-License-Identifier: MIT
 
 /* === Private variable declarations =========================================================== */
 
+static struct board_s board = {0};
+
 /* === Private function declarations =========================================================== */
 
 /* === Public variable definitions ============================================================= */
@@ -47,6 +49,9 @@ SPDX-License-Identifier: MIT
 
 /* === Public function implementation ========================================================== */
 
+board_t BoardCreate(void) {
+    return &board;
+}
 /* === End of documentation ==================================================================== */
 
 /** @} End of module definition for doxygen */
